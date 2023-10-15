@@ -1,5 +1,7 @@
 mod config;
 mod handler;
+mod models;
+mod response;
 
 use actix_cors::Cors;
 use actix_web::{middleware::Logger, web, App, HttpServer};
@@ -7,8 +9,9 @@ use config::Config;
 use dotenv;
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 
-struct AppState {
+pub struct AppState {
     db: Pool<Postgres>,
+    config: Config,
 }
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -35,12 +38,15 @@ async fn main() -> std::io::Result<()> {
         let cors = Cors::permissive();
 
         App::new()
-            .app_data(web::Data::new(AppState { db: pool.clone() }))
+            .app_data(web::Data::new(AppState {
+                db: pool.clone(),
+                config: config.clone(),
+            }))
             .configure(handler::config)
             .wrap(cors)
             .wrap(Logger::default())
     })
-    .bind(("127.0.0.1", config.port))?
+    .bind(("127.0.0.1", 8080))?
     .run()
     .await
 }
