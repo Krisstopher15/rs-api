@@ -1,6 +1,8 @@
+#[derive(Clone)]
 pub struct Config {
     pub database_url: String,
     pub port: u16,
+    pub secret_password: String,
 }
 
 impl Config {
@@ -10,7 +12,13 @@ impl Config {
             .expect("No PORT provided")
             .parse()
             .unwrap();
+        let secret_password =
+            std::env::var("PASSWORD_SECRET").expect("No PASSWORD_SECRET provided");
 
-        Self { database_url, port }
+        Self {
+            database_url,
+            port,
+            secret_password,
+        }
     }
 }
